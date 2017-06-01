@@ -3,6 +3,9 @@
   (:gen-class))
 
 (def board [["X"  "X"  "X"] ["O"  "O"  "O"] ["X"  "X"  "O"]])
+(def opponent-map (hash-map "X" "O" "O" "X"))
+
+(defn empty-board [] [[" " " " " "][" " " " " "][" " " " " "]])
 
 (defn mark-cell
   "Mark the cell in the board"
@@ -35,7 +38,8 @@
 (defn print-board 
   "Prints the board"
   [board]
-  (print (str/join "\n" (for [row board] (row-str row)))))
+  (do (println (str/join "\n" (for [row board] (row-str row))))
+      (println "--------------------------------")))
 
 (defn find-winner
   "Find the winner if any"
@@ -48,11 +52,34 @@
   (zero? (apply + (map (fn [m] (m " " 0)) (map frequencies board)))))
 
 
+(defn mark-random-cell [board player]
+  (loop [r (rand-int 3) c (rand-int 3)]
+    (if (= " " (get-in board [r c]))
+      (mark-cell board r c player)
+      (recur (rand-int 3) (rand-int 3)))))
+
+
+
+
 
 (defn start-game
   "Starts the game"
   []
-  (println "Starts the game"))
+  (loop [board (mark-random-cell (empty-board) "X") player (opponent-map "X")]
+    (if (find-winner board)
+      (do (print-board board) (println (str "\n " (find-winner board) " Won the game!")))
+      (if (draw? board)
+        (do (print-board board) (println (str "\nMatch drawn!")))
+        (recur (mark-random-cell board player) (opponent-map player))))))
+
+(defn start-game-recur
+  [board player]
+  (if (find-winner board)
+    (do (print-board board) (println (str "\n " (find-winner board) " Won the game!")))
+    (do (print-board board) 
+        (if (draw? board)
+          (println "\nMatch drawn!\n")
+          (recur (mark-random-cell board player) (opponent-map player))))))
 
 
 (defn -main
