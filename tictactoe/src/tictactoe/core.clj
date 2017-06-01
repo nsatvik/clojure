@@ -20,6 +20,17 @@
   [row]
   (str " " (str/join " | " row) " "))
 
+(defn transpose [m]
+  (apply mapv vector m))
+
+(defn winner? [board]
+  (first (map keys (filter (fn [m] (and (= 1 (count m)) (or (= 3 (m "X")) (= 3 (m "O"))))) (map frequencies board)))))
+
+(defn diagonal-winner? [board]
+  (cond (= (get-in board [0 0]) (get-in board [1 1]) (get-in board [2 2]) "X") "X"
+        (= (get-in board [0 0]) (get-in board [1 1]) (get-in board [2 2]) "O") "O"
+        (= (get-in board [2 0]) (get-in board [1 1]) (get-in board [0 2]) "X") "X"
+        (= (get-in board [2 0]) (get-in board [1 1]) (get-in board [0 2]) "O") "O"))
 
 (defn print-board 
   "Prints the board"
@@ -29,7 +40,7 @@
 (defn find-winner
   "Find the winner if any"
   [board]
-  (print "Finds the winner if any"))
+  (or (winner? board) (winner? (transpose board)) (diagonal-winner? board)))
 
 (defn draw? 
   "Checks if it is a draw based on blank counts"
